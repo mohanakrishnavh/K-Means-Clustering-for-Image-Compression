@@ -20,13 +20,38 @@ public class KMeans
 			return;
 		}
 		try {
-			BufferedImage originalImage = ImageIO.read(new File(args[0]));
+			double bytes,kilobytes,input_image_size = 0.0,output_image_size = 0.0;
+			BufferedImage inputImage = ImageIO.read(new File(args[0]));
 			int k = Integer.parseInt(args[1]);
-			String ouputImage = args[0].substring(0, args[0].length() - 4) + "_output_k" + args[1]+ args[0].substring(args[0].length() - 4, args[0].length());
+			String outputImage = args[0].substring(0, args[0].length() - 4) + "_output_k" + args[1]+ args[0].substring(args[0].length() - 4, args[0].length());
 			System.out.println("Original Image:" + args[0]);
-			System.out.println("Output Image:" + ouputImage);
-			BufferedImage kmeansJpg = kmeans_helper(originalImage, k);
-			ImageIO.write(kmeansJpg, "jpg", new File(ouputImage));
+			System.out.println("Output Image:" + outputImage);
+			
+			BufferedImage kmeansJpg = kmeans_helper(inputImage, k);
+			ImageIO.write(kmeansJpg, "jpg", new File(outputImage));
+			
+			File input_file = new File(args[0]);
+			if(input_file.exists())
+			{
+
+				bytes = input_file.length();
+				input_image_size = (bytes / 1024);
+				//input_image_size = (kilobytes / 1024);
+			}
+			System.out.println("Input Image size: " + input_image_size+" KB");
+			
+			File output_file = new File(outputImage);
+			if(output_file.exists())
+			{
+
+				bytes = output_file.length();
+				output_image_size = (bytes / 1024);
+				//input_image_size = (kilobytes / 1024);
+			}
+			System.out.println("Output Image size: " + output_image_size+" KB");
+			double comp_ratio = 100 - ((output_image_size/input_image_size)*100);
+			System.out.println("Compression Ratio : " +comp_ratio);
+			
 		} 
 		catch (IOException e) 
 		{
@@ -34,15 +59,15 @@ public class KMeans
 		}
 	}
 	
-	private static BufferedImage kmeans_helper(BufferedImage originalImage, int k) 
+	private static BufferedImage kmeans_helper(BufferedImage inputImage, int k) 
 	{
-		int width = originalImage.getWidth();
-		int height = originalImage.getHeight();
+		int width = inputImage.getWidth();
+		int height = inputImage.getHeight();
 		System.out.println("Image width:\t" + width);
 		System.out.println("Image height:\t" + height);
-		BufferedImage kmeansImage = new BufferedImage(width, height, originalImage.getType());
+		BufferedImage kmeansImage = new BufferedImage(width, height, inputImage.getType());
 		Graphics2D g = kmeansImage.createGraphics();
-		g.drawImage(originalImage, 0, 0, width, height, null);
+		g.drawImage(inputImage, 0, 0, width, height, null);
 		// Read rgb values from the image
 		int[] rgb = new int[width * height];
 		int count = 0;
@@ -51,7 +76,7 @@ public class KMeans
 			for (int j = 0; j < height; j++) 
 			{
 				rgb[count++] = kmeansImage.getRGB(i, j);
-				System.out.println(rgb);
+				//System.out.println(rgb);
 			}
 		}
 		// Call kmeans algorithm: update the rgb values
